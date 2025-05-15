@@ -8,4 +8,4 @@ pub use collection::VarCollection;
 pub use constraint::{ValueConstraint, ValueScope};
 pub use definition::{VarDefinition, VarValue};
 pub use dict::ValueDict;
-pub use types::VarType;
+pub use types::{ValueType, VarType};

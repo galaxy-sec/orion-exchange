@@ -6,6 +6,7 @@ use serde_derive::{Deserialize, Serialize};
 use super::{ValueDict, types::VarType};
 
 #[derive(Getters, Clone, Debug, Serialize, Deserialize, PartialEq)]
+//#[serde(transparent)]
 pub struct VarCollection {
     vars: Vec<VarType>,
 }
@@ -16,7 +17,7 @@ impl VarCollection {
     pub fn value_dict(&self) -> ValueDict {
         let mut dict = ValueDict::new();
         for var in &self.vars {
-            dict.insert(var.var_value()); // 可能需要 into() 转换
+            dict.insert(var.name().to_string(), var.var_value()); // 可能需要 into() 转换
         }
         dict
     }

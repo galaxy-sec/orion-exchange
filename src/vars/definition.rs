@@ -21,7 +21,6 @@ where
     }
     pub(crate) fn var_value(&self) -> VarValue<T> {
         VarValue {
-            name: self.name.clone(),
             value: self.value.clone(),
         }
     }
@@ -32,11 +31,12 @@ where
 }
 
 #[derive(Getters, Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(transparent)]
 pub struct VarValue<T>
 where
     T: serde::Serialize,
 {
-    name: String,
+    //name: String,
     value: T,
 }
 
@@ -77,35 +77,31 @@ impl From<(&str, f64)> for VarDefinition<f64> {
     }
 }
 
-impl From<(&str, &str)> for VarValue<String> {
-    fn from(value: (&str, &str)) -> Self {
+impl From<&str> for VarValue<String> {
+    fn from(value: &str) -> Self {
         VarValue {
-            name: value.0.to_string(),
-            value: value.1.to_string(),
+            value: value.to_string(),
         }
     }
 }
-impl From<(&str, bool)> for VarValue<bool> {
-    fn from(value: (&str, bool)) -> Self {
-        VarValue {
-            name: value.0.to_string(),
-            value: value.1,
-        }
+
+impl From<String> for VarValue<String> {
+    fn from(value: String) -> Self {
+        VarValue { value }
     }
 }
-impl From<(&str, u64)> for VarValue<u64> {
-    fn from(value: (&str, u64)) -> Self {
-        VarValue {
-            name: value.0.to_string(),
-            value: value.1,
-        }
+impl From<bool> for VarValue<bool> {
+    fn from(value: bool) -> Self {
+        VarValue { value }
     }
 }
-impl From<(&str, f64)> for VarValue<f64> {
-    fn from(value: (&str, f64)) -> Self {
-        VarValue {
-            name: value.0.to_string(),
-            value: value.1,
-        }
+impl From<u64> for VarValue<u64> {
+    fn from(value: u64) -> Self {
+        VarValue { value }
+    }
+}
+impl From<f64> for VarValue<f64> {
+    fn from(value: f64) -> Self {
+        VarValue { value }
     }
 }

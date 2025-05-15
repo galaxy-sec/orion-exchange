@@ -69,46 +69,97 @@ impl From<(&str, f64)> for VarType {
     }
 }
 
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+//#[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum ValueType {
-    #[serde(rename = "string")]
+    //#[serde(rename = "string")]
     String(VarValue<String>),
-    #[serde(rename = "bool")]
+    //#[serde(rename = "bool")]
     Bool(VarValue<bool>),
-    #[serde(rename = "int")]
+    //#[serde(rename = "int")]
     Int(VarValue<u64>),
-    #[serde(rename = "float")]
+    //#[serde(rename = "float")]
     Float(VarValue<f64>),
 }
 
-impl ValueType {
-    pub fn name(&self) -> &str {
+impl serde::Serialize for ValueType {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
         match self {
-            ValueType::String(var) => var.name(),
-            ValueType::Bool(var) => var.name(),
-            ValueType::Int(var) => var.name(),
-            ValueType::Float(var) => var.name(),
+            ValueType::String(v) => v.serialize(serializer),
+            ValueType::Bool(v) => v.serialize(serializer),
+            ValueType::Int(v) => v.serialize(serializer),
+            ValueType::Float(v) => v.serialize(serializer),
         }
     }
 }
 
-impl From<(&str, &str)> for ValueType {
-    fn from(value: (&str, &str)) -> Self {
+impl<'de> serde::Deserialize<'de> for ValueType {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        // 使用 serde::DeserializeSeed 来避免多次使用 deserializer
+        struct ValueTypeVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for ValueTypeVisitor {
+            type Value = ValueType;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a string, bool, integer or float value")
+            }
+
+            fn visit_bool<E>(self, v: bool) -> Result<Self::Value, E> {
+                Ok(ValueType::Bool(VarValue::from(v)))
+            }
+
+            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E> {
+                Ok(ValueType::Int(VarValue::from(v as u64)))
+            }
+
+            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E> {
+                Ok(ValueType::Int(VarValue::from(v)))
+            }
+
+            fn visit_f64<E>(self, v: f64) -> Result<Self::Value, E> {
+                Ok(ValueType::Float(VarValue::from(v)))
+            }
+
+            fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(ValueType::String(VarValue::from(v)))
+            }
+
+            fn visit_string<E>(self, v: String) -> Result<Self::Value, E> {
+                Ok(ValueType::String(VarValue::from(v)))
+            }
+        }
+
+        deserializer.deserialize_any(ValueTypeVisitor)
+    }
+}
+
+impl From<&str> for ValueType {
+    fn from(value: &str) -> Self {
         Self::String(VarValue::from(value))
     }
 }
-impl From<(&str, bool)> for ValueType {
-    fn from(value: (&str, bool)) -> Self {
+impl From<bool> for ValueType {
+    fn from(value: bool) -> Self {
         Self::Bool(VarValue::from(value))
     }
 }
-impl From<(&str, u64)> for ValueType {
-    fn from(value: (&str, u64)) -> Self {
+impl From<u64> for ValueType {
+    fn from(value: u64) -> Self {
         Self::Int(VarValue::from(value))
     }
 }
-impl From<(&str, f64)> for ValueType {
-    fn from(value: (&str, f64)) -> Self {
+impl From<f64> for ValueType {
+    fn from(value: f64) -> Self {
         Self::Float(VarValue::from(value))
     }
 }
