@@ -104,7 +104,7 @@ impl<'de> serde::Deserialize<'de> for ValueType {
         // 使用 serde::DeserializeSeed 来避免多次使用 deserializer
         struct ValueTypeVisitor;
 
-        impl<'de> serde::de::Visitor<'de> for ValueTypeVisitor {
+        impl serde::de::Visitor<'_> for ValueTypeVisitor {
             type Value = ValueType;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
