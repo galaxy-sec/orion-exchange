@@ -11,14 +11,14 @@ pub struct ValueDict {
     dict: HashMap<String, ValueType>,
 }
 impl ValueDict {
-    pub(crate) fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             dict: HashMap::new(),
         }
     }
 
-    pub(crate) fn insert(&mut self, k: String, v: ValueType) -> Option<ValueType> {
-        self.dict.insert(k, v)
+    pub fn insert<S:Into<String>>(&mut self, k: S, v: ValueType) -> Option<ValueType> {
+        self.dict.insert(k.into(), v)
     }
 }
 
